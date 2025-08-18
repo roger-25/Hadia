@@ -44,11 +44,12 @@ jobs:
         run: terraform validate
 
       - name: Terraform Plan
-        id: plan
-        run: terraform plan -out=tfplan \
-          -var="restore_from_snapshot=${{ needs.get_snapshot_id.outputs.snapshot_id != '' || github.event.inputs.snapshot_id != '' }}" \
-          -var="snapshot_id=${{ github.event.inputs.snapshot_id != '' && github.event.inputs.snapshot_id || needs.get_snapshot_id.outputs.snapshot_id }}" \
-          -input=false
+        run: |
+          terraform plan \
+            -out=tfplan \
+            -var="restore_from_snapshot=false" \
+            -var="snapshot_id=" \
+            -input=false
 
       - name: Terraform Apply
         if: github.event.inputs.action == 'apply'
