@@ -1,0 +1,77 @@
+name: Terraform Deploy with RDS Backup/Restore
+
+on:
+  workflow_dispatch:   # Enable manual trigger with inputs
+    inputs:
+      action:
+        description: 'Choose deploy action'
+        required: true
+        default: 'apply'
+        type: choice
+        options:
+          - apply
+          - destroy
+          
+env:
+  AWS_REGION: us-east-1
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+            aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+            aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            aws-region: us-east-1
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.5.6
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Format Check
+        run: terraform fmt -check
+
+      - name: Terraform Validate
+        run: terraform validate
+
+      - name: Terraform Plan
+        id: plan
+        run: terraform plan -out=tfplan \
+          -var="restore_from_snapshot=${{ needs.get_snapshot_id.outputs.snapshot_id != '' || github.event.inputs.snapshot_id != '' }}" \
+          -var="snapshot_id=${{ github.event.inputs.snapshot_id != '' && github.event.inputs.snapshot_id || needs.get_snapshot_id.outputs.snapshot_id }}" \
+          -input=false
+
+      - name: Terraform Apply
+        if: github.event.inputs.action == 'apply'
+        run: terraform apply -input=false -auto-approve tfplan
+
+      - name: Terraform Destroy
+        if: github.event.inputs.action == 'destroy'
+        run: terraform destroy -auto-approve
+
+  get_snapshot_id:
+    needs: terraform
+    runs-on: ubuntu-latest
+    if: github.event.inputs.action == 'destroy'
+    steps:
+      - name: AWS CLI - List latest snapshot
+        id: snapshot
+        run: |
+          SNAPSHOT_ID=$(aws rds describe-db-snapshots \
+            --db-instance-identifier hadai-db-instance-name \
+            --snapshot-type manual \
+            --query 'reverse(sort_by(DBSnapshots, &SnapshotCreateTime))[0].DBSnapshotIdentifier' \
+            --output text)
+          echo "snapshot_id=$SNAPSHOT_ID" >> $GITHUB_OUTPUT
+
+      - name: Show latest snapshot id
+        run: echo "Latest snapshot is ${{ steps.snapshot.outputs.snapshot_id }}"
