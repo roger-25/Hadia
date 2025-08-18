@@ -1,0 +1,14 @@
+vpc_cidr = "10.0.0.0/16"
+vpc_region = "us-east-1"
+public_subnets = ["10.0.1.0/24","10.0.2.0/24"]
+private_subnets = ["10.0.3.0/24", "10.0.4.0/24"]
+git_token = "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"
+git_repo = "https://github.com/roger-25/Hadia.git"
+s3_bucket = "hadai-cf-logs"
+username_db = "admin"
+password_db = "admin1234"
+root_domain = "publicvm.com"
+frontend_subdomain = "frontend"
+backend_subdomain = "api"
+restore_from_snapshot = false
+snapshot_id = ""
