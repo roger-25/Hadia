@@ -21,3 +21,17 @@ resource "aws_db_instance" "hadia_db" {
 output "db_endpoint" {
   value = aws_db_instance.hadia_db.endpoint
 }
+
+output "db_endpoint" {
+  value = aws_db_instance.mysql.address
+}
+
+output "db_username" {
+  value = aws_db_instance.mysql.username
+}
+
+output "db_password" {
+  value     = var.db_pass
+  sensitive = true
+}
+
