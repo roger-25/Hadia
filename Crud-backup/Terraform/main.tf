@@ -1,5 +1,6 @@
 terraform {
   required_version = ">= 1.3.0"
+
   required_providers {
     aws = {
       source  = "hashicorp/aws"
@@ -8,14 +9,12 @@ terraform {
   }
 }
 
-terraform {
   backend "s3" {
     bucket         = "hadia"
     key            = "crud/terraform.tfstate"
     region         = "us-east-1"
     dynamodb_table = "terraform-locks"
   }
-}
 
 provider "aws" {
   region = var.vpc_region
