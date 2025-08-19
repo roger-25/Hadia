@@ -32,7 +32,7 @@ resource "aws_instance" "backend" {
 
               # Copy environment file and replace values using Terraform-provided RDS details
               cp .env.development .env
-              sed -i "s|DB_CONNECTION_STRING=.*|DB_CONNECTION_STRING=mysql://${var.db_user}:${var.db_pass}@${aws_db_instance.mysql.address}:3306/hadiya_db|" .env
+              sed -i "s|DB_CONNECTION_STRING=.*|DB_CONNECTION_STRING=mysql://${var.db_user}:${var.db_pass}@${var.db_endpoint}:3306/hadiya_db|" .env
               sed -i "s|PORT=.*|PORT=3000|" .env
 
               npm run pm2start
