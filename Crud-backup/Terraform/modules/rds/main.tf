@@ -19,7 +19,7 @@ resource "aws_db_instance" "hadia_db" {
 }
 
 output "db_endpoint" {
-  value = aws_db_instance.hadia_db.endpoint
+  value = aws_db_instance.mysql.endpoint
 }
 
 output "db_endpoint" {
