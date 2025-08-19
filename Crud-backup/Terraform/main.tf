@@ -39,11 +39,16 @@ module "rds" {
 }
 
 module "backend" {
-  source     = "./modules/backend-ec2"
-  subnet_ids = module.vpc.private_subnet_ids
-    vpc_id     = module.vpc.vpc_id
+  source      = "./modules/backend-ec2"
+  subnet_ids  = module.vpc.private_subnet_ids
+  vpc_id      = module.vpc.vpc_id
+
+  # pass RDS connection info
   db_endpoint = module.rds.db_endpoint
+  db_user     = var.username_db
+  db_pass     = var.password_db
 }
+
 
 module "alb" {
   source           = "./modules/alb"
