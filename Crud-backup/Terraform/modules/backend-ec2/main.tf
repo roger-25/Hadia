@@ -16,27 +16,33 @@ resource "aws_instance" "backend" {
   ami           = data.aws_ami.ubuntu.id
   instance_type = "t3.micro"
   subnet_id     = var.subnet_ids[0]
+  vpc_security_group_ids = [aws_security_group.backend_sg.id]
+
   user_data = <<-EOF
               #!/bin/bash
-sudo apt update -y
-curl -fsSL https://rpm.nodesource.com/setup_18.x | sudo bash -
-sudo apt install -y nodejs git
-sudo npm install -g pm2
+              sudo apt update -y
+              curl -fsSL https://rpm.nodesource.com/setup_18.x | sudo bash -
+              sudo apt install -y nodejs git
+              sudo npm install -g pm2
 
-cd /home/ec2-user
-sudo apt install git -y
-git clone https://github.com/roger-25/Hadia.git
-cd hadiya-backend
-npm install
+              cd /home/ubuntu
+              git clone https://github.com/roger-25/Hadia.git
+              cd hadiya-backend
+              npm install
 
-cp .env.development .env
-sed -i "s|DB_CONNECTION_STRING=.*|DB_CONNECTION_STRING=mysql://${DB_USER}:${DB_PASS}@${RDS_ENDPOINT}:3306/hadiya_db|" .env
-sed -i "s|PORT=.*|PORT=3000|" .env
+              # Copy environment file and replace values using Terraform-provided RDS details
+              cp .env.development .env
+              sed -i "s|DB_CONNECTION_STRING=.*|DB_CONNECTION_STRING=mysql://${var.db_user}:${var.db_pass}@${aws_db_instance.mysql.address}:3306/hadiya_db|" .env
+              sed -i "s|PORT=.*|PORT=3000|" .env
 
-npm run pm2start
+              npm run pm2start
               EOF
-  tags = { Name = "hadai-backend" }
+
+  tags = { 
+    Name = "hadai-backend" 
+  }
 }
+
 
 
 
