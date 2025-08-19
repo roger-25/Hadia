@@ -1,4 +1,3 @@
-
 resource "aws_db_subnet_group" "hadia_db_subnet_group" {
   name       = "hadai-db-subnets"
   subnet_ids = var.private_subnet_ids
@@ -19,19 +18,14 @@ resource "aws_db_instance" "hadia_db" {
 }
 
 output "db_endpoint" {
-  value = aws_db_instance.mysql.endpoint
-}
-
-output "db_endpoint" {
-  value = aws_db_instance.mysql.address
+  value = aws_db_instance.hadia_db.address
 }
 
 output "db_username" {
-  value = aws_db_instance.mysql.username
+  value = aws_db_instance.hadia_db.username
 }
 
 output "db_password" {
-  value     = var.db_pass
+  value     = var.password_db
   sensitive = true
 }
-
