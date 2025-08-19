@@ -12,12 +12,12 @@ resource "aws_db_instance" "hadia_db" {
   db_name                   = "hadaidb"
   username                  = var.username_db
   password                  = var.password_db
-  db_subnet_group_name      = aws_db_subnet_group.this.name
+  db_subnet_group_name      = aws_db_subnet_group.hadia_db_subnet_group.name
   skip_final_snapshot       = false
   final_snapshot_identifier = "hadai-db-final-${timestamp()}"
   snapshot_identifier       = var.restore_from_snapshot ? var.snapshot_id : null
 }
 
 output "db_endpoint" {
-  value = aws_db_instance.this.endpoint
+  value = aws_db_instance.hadia_db.endpoint
 }
